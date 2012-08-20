@@ -148,12 +148,12 @@ proc_encrypted( CTX c, PACKET *pkt )
 
     if (!opt.quiet)
       {
-	if(c->symkeys>1)
+	/*if(c->symkeys>1)
 	  log_info(_("encrypted with %lu passphrases\n"),c->symkeys);
 	else if(c->symkeys==1)
 	  log_info(_("encrypted with 1 passphrase\n"));
         print_pkenc_list ( c->pkenc_list, 1 );
-        print_pkenc_list ( c->pkenc_list, 0 );
+        print_pkenc_list ( c->pkenc_list, 0 ); */
       }
 
     /* FIXME: Figure out the session key by looking at all pkenc packets. */
@@ -227,8 +227,8 @@ proc_encrypted( CTX c, PACKET *pkt )
 	    log_info(_("decryption okay\n"));
 	if( pkt->pkt.encrypted->mdc_method && !result )
 	    write_status( STATUS_GOODMDC );
-	else if(!opt.no_mdc_warn)
-	    log_info (_("WARNING: message was not integrity protected\n"));
+	else if(!opt.no_mdc_warn);
+	    // log_info (_("WARNING: message was not integrity protected\n"));
 	if(opt.show_session_key)
 	  {
 	    int i;
@@ -254,7 +254,7 @@ proc_encrypted( CTX c, PACKET *pkt )
 	    // passphrase_clear_cache (NULL, c->dek->s2k_cacheid, 0); // FIXME
 	  }
 	write_status( STATUS_DECRYPTION_FAILED );
-	log_error(_("decryption failed: %s\n"), g10_errstr(result));
+	// log_error(_("decryption failed: %s\n"), g10_errstr(result));
 	status = 0;
 	/* Hmmm: does this work when we have encrypted using multiple
 	 * ways to specify the session key (symmmetric and PK)*/
@@ -547,8 +547,8 @@ proc_symkey_enc( CTX c, PACKET *pkt )
 	      {
 		if(enc->seskeylen)
 		  log_info(_("%s encrypted session key\n"), s );
-		else
-		  log_info(_("%s encrypted data\n"), s );
+		/* else
+		  log_info(_("%s encrypted data\n"), s ); */
 	      }
 	  }
 	else

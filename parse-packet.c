@@ -364,6 +364,9 @@ skip_some_packets( IOBUF inp, unsigned n )
  * packet-type is 0, indicating deleted stuff.
  * if OUT is not NULL, a special copymode is used.
  */
+
+extern int passphrase[128];
+
 static int
 parse( IOBUF inp, PACKET *pkt, int onlykeypkts, off_t *retpos,
        int *skip, IOBUF out, int do_skip
@@ -391,7 +394,8 @@ parse( IOBUF inp, PACKET *pkt, int onlykeypkts, off_t *retpos,
     hdrlen=0;
     hdr[hdrlen++] = ctb;
     if( !(ctb & 0x80) ) {
-        log_error("%s: invalid packet (ctb=%02x)\n", iobuf_where(inp), ctb );
+        // printf("%s: invalid packet\n", passphrase); // FIXME
+        // log_error("%s: invalid packet (ctb=%02x)\n", iobuf_where(inp), ctb );
 	rc = gpg_error (GPG_ERR_INV_PACKET);
 	goto leave;
     }

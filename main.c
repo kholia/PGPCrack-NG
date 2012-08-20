@@ -46,7 +46,6 @@ char passphrase[N];
 int main(int argc, char **argv)
 {
 	gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
-	puts(argv[1]);
 	int rc = 0;
 	int l;
 	int ret;
@@ -69,5 +68,5 @@ int main(int argc, char **argv)
 		}
 		iobuf_close(a);
 	}
-	return 0;
+	return -1;
 }
