@@ -49,6 +49,7 @@ int main(int argc, char **argv)
 	int rc = 0;
 	int l;
 	int ret;
+	armor_filter_context_t *afx = NULL;
 
 	while (fgets(passphrase, N, stdin) != NULL && status == 0) {
 		IOBUF a;
@@ -58,6 +59,10 @@ int main(int argc, char **argv)
 		passphrase[l - 1] = 0;
 		status = 1;
 		a = iobuf_open(argv[1]);
+		if( use_armor_filter( a ) ) {
+			afx = new_armor_context ();
+			push_armor_filter (afx, a);
+		}
 		rc = proc_packets(NULL, a);
 		ret = stat("output", &sb);
 		if (status == 1 && sb.st_size > 0 && ret != -1) {
