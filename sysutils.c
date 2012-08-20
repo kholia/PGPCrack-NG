@@ -140,7 +140,6 @@ get_session_marker( size_t *rlen )
     if ( !initialized ) {
         volatile ulong aa, bb; /* we really want the uninitialized value */
         ulong a, b;
-
         initialized = 1;
         /* Although this marker is guessable it is not easy to use
          * for a faked control packet because an attacker does not

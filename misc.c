@@ -508,16 +508,6 @@ idea_cipher_warn(int show)
 }
 #endif
 
-
-static unsigned long
-get_signature_count (PKT_secret_key *sk)
-{
-  /* How to do this without a card? */
-
-  return 0;
-}
-
-
 /*
  * Wrapper around gcry_cipher_map_name to provide a fallback using the
  * "Sn" syntax as used by the preference strings.

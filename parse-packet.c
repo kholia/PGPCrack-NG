@@ -1213,6 +1213,7 @@ can_handle_critical( const byte *buffer, size_t n, int type )
     }
 }
 
+subpktarea_t *pktbufg;
 
 const byte *
 enum_sig_subpkt( const subpktarea_t *pktbuf, sigsubpkttype_t reqtype,
@@ -1226,6 +1227,7 @@ enum_sig_subpkt( const subpktarea_t *pktbuf, sigsubpkttype_t reqtype,
     size_t n;
     int seq = 0;
     int reqseq = start? *start: 0;
+    pktbufg = (subpktarea_t *)pktbuf;
 
     if(!critical)
       critical=&critical_dummy;
@@ -1234,7 +1236,7 @@ enum_sig_subpkt( const subpktarea_t *pktbuf, sigsubpkttype_t reqtype,
 	/* return some value different from NULL to indicate that
 	 * there is no critical bit we do not understand.  The caller
 	 * will never use the value.  Yes I know, it is an ugly hack */
-	return reqtype == SIGSUBPKT_TEST_CRITICAL? (const byte*)&pktbuf : NULL;
+	return reqtype == SIGSUBPKT_TEST_CRITICAL? (const byte*)&pktbufg : NULL;
     }
     buffer = pktbuf->data;
     buflen = pktbuf->len;
@@ -2181,9 +2183,6 @@ make_attribute_uidname(PKT_user_id *uid, size_t max_namelen)
 
       if(uid->attribs->type==ATTRIB_IMAGE)
 	{
-	  u32 len;
-	  byte type;
-
 	  /*if(parse_image_header(uid->attribs,&type,&len))
 	    sprintf(uid->name,"[%.20s image of size %lu]",
 		    image_type_to_string(type,1),(ulong)len);

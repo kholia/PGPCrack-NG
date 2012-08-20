@@ -46,7 +46,6 @@ char passphrase[N];
 int main(int argc, char **argv)
 {
 	gcry_control(GCRYCTL_INITIALIZATION_FINISHED, 0);
-	int rc = 0;
 	int l;
 	int ret;
 	armor_filter_context_t *afx = NULL;
@@ -63,7 +62,7 @@ int main(int argc, char **argv)
 			afx = new_armor_context ();
 			push_armor_filter (afx, a);
 		}
-		rc = proc_packets(NULL, a);
+		proc_packets(NULL, a);
 		ret = stat("output", &sb);
 		if (status == 1 && sb.st_size > 0 && ret != -1) {
 			printf("Found Password : %s\n", passphrase);

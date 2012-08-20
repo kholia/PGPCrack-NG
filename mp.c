@@ -70,76 +70,7 @@ struct mainproc_context
   int any_sig_seen;  /* Set to true if a signature packet has been seen. */
 };
 
-
-int
-proc_packets( void *anchor, IOBUF a )
-{
-    int rc;
-    CTX c = xmalloc_clear( sizeof *c );
-
-    c->anchor = anchor;
-    rc = do_proc_packets( c, a );
-    xfree( c );
-    return rc;
-}
-
-/****************
- * Print the list of public key encrypted packets which we could
- * not decrypt.
- */
-static void
-print_pkenc_list( struct kidlist_item *list, int failed )
-{
-    for( ; list; list = list->next ) {
-	PKT_public_key *pk;
-	const char *algstr;
-
-        if ( failed && !list->reason )
-            continue;
-        if ( !failed && list->reason )
-            continue;
-
-        algstr = gcry_pk_algo_name ( list->pubkey_algo );
-        pk = xmalloc_clear( sizeof *pk );
-
-	if( !algstr )
-	    algstr = "[?]";
-	pk->pubkey_algo = list->pubkey_algo;
-	//if( !get_pubkey( pk, list->kid ) ) // FIXME
-	if(0)
-	  {
-	    char *p;
-	    log_info( _("encrypted with %u-bit %s key, ID %s, created %s\n"),
-		      nbits_from_pk( pk ), algstr, keystr_from_pk(pk),
-		      strtimestamp(pk->timestamp) );
-	    p=get_user_id_native(list->kid);
-	    log_printf (_("      \"%s\"\n"),p);
-	    xfree(p);
-	  }
-	else
-	  log_info(_("encrypted with %s key, ID %s\n"),
-		   algstr,keystr(list->kid));
-
-	free_public_key( pk );
-
-	if( list->reason == G10ERR_NO_SECKEY ) {
-	    if( is_status_enabled() ) {
-		char buf[20];
-		snprintf (buf, sizeof buf, "%08lX%08lX",
-                          (ulong)list->kid[0], (ulong)list->kid[1]);
-		write_status_text( STATUS_NO_SECKEY, buf );
-	    }
-	}
-	else if (list->reason)
-          {
-	    log_info(_("public key decryption failed: %s\n"),
-						g10_errstr(list->reason));
-            write_status_error ("pkdecrypt_failed", list->reason);
-          }
-    }
-}
-
-
+int do_proc_packets( CTX c, IOBUF a );
 
 static void
 proc_encrypted( CTX c, PACKET *pkt )
@@ -227,7 +158,7 @@ proc_encrypted( CTX c, PACKET *pkt )
 	    log_info(_("decryption okay\n"));
 	if( pkt->pkt.encrypted->mdc_method && !result )
 	    write_status( STATUS_GOODMDC );
-	else if(!opt.no_mdc_warn);
+	// else if(!opt.no_mdc_warn); // FIXME
 	    // log_info (_("WARNING: message was not integrity protected\n"));
 	if(opt.show_session_key)
 	  {
@@ -442,94 +373,7 @@ proc_compressed( CTX c, PACKET *pkt )
     c->last_was_session_key = 0;
 }
 
-/****************
- * check the signature
- * Returns: 0 = valid signature or an error code
- */
-static int
-do_check_sig( CTX c, KBNODE node, int *is_selfsig,
-	      int *is_expkey, int *is_revkey )
-{
-    PKT_signature *sig;
-    gcry_md_hd_t md = NULL, md2 = NULL;
-    int algo, rc;
-
-    assert( node->pkt->pkttype == PKT_SIGNATURE );
-    if( is_selfsig )
-	*is_selfsig = 0;
-    sig = node->pkt->pkt.signature;
-
-    algo = sig->digest_algo;
-    rc = openpgp_md_test_algo(algo);
-    if (rc)
-      return rc;
-
-    if( sig->sig_class == 0x00 ) {
-	if( c->mfx.md )
-          {
-            if (gcry_md_copy (&md, c->mfx.md ))
-              BUG ();
-          }
-	else /* detached signature */
-          {
-            /* signature_check() will enable the md*/
-	    if (gcry_md_open (&md, 0, 0 ))
-              BUG ();
-          }
-    }
-    else if( sig->sig_class == 0x01 ) {
-	/* how do we know that we have to hash the (already hashed) text
-	 * in canonical mode ??? (calculating both modes???) */
-	if( c->mfx.md ) {
-            if (gcry_md_copy (&md, c->mfx.md ))
-              BUG ();
-	    if( c->mfx.md2 && gcry_md_copy (&md2, c->mfx.md2 ))
-              BUG ();
-	}
-	else { /* detached signature */
- 	    log_debug("Do we really need this here?");
-            /* signature_check() will enable the md*/
-	    if (gcry_md_open (&md, 0, 0 ))
-              BUG ();
-	    if (gcry_md_open (&md2, 0, 0 ))
-              BUG ();
-	}
-    }
-    else if( (sig->sig_class&~3) == 0x10
-	     || sig->sig_class == 0x18
-             || sig->sig_class == 0x1f
-	     || sig->sig_class == 0x20
-	     || sig->sig_class == 0x28
-	     || sig->sig_class == 0x30	) {
-	if( c->list->pkt->pkttype == PKT_PUBLIC_KEY
-	    || c->list->pkt->pkttype == PKT_PUBLIC_SUBKEY ) {
-	    // return check_key_signature( c->list, node, is_selfsig ); // FIXME
-	}
-	else if( sig->sig_class == 0x20 ) {
-	    log_error (_("standalone revocation - "
-                         "use \"gpg --import\" to apply\n"));
-	    return G10ERR_NOT_PROCESSED;
-	}
-	else {
-	    log_error("invalid root packet for sigclass %02x\n",
-							sig->sig_class);
-	    return G10ERR_SIG_CLASS;
-	}
-    }
-    else
-	return G10ERR_SIG_CLASS;
-    /*rc = signature_check2( sig, md, NULL, is_expkey, is_revkey, NULL );
-    if( gpg_err_code (rc) == GPG_ERR_BAD_SIGNATURE && md2 )
-	rc = signature_check2( sig, md2, NULL, is_expkey, is_revkey, NULL ); */ // FIXME
-    gcry_md_close(md);
-    gcry_md_close(md2);
-
-    return rc;
-}
-
-
-
-	static void
+static void
 proc_symkey_enc( CTX c, PACKET *pkt )
 {
     PKT_symkey_enc *enc;
@@ -608,6 +452,19 @@ proc_symkey_enc( CTX c, PACKET *pkt )
     c->symkeys++;
     free_packet(pkt);
 }
+
+int
+proc_packets( void *anchor, IOBUF a )
+{
+    int rc;
+    CTX c = xmalloc_clear( sizeof *c );
+
+    c->anchor = anchor;
+    rc = do_proc_packets( c, a );
+    xfree( c );
+    return rc;
+}
+
 
 int
 proc_signature_packets( void *anchor, IOBUF a,

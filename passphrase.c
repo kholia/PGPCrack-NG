@@ -252,7 +252,7 @@ passphrase_to_dek_ext (u32 *keyid, int pubkey_algo,
   char *pw = NULL;
   STRING2KEY help_s2k;
   int dummy_canceled;
-  char s2k_cacheidbuf[1+16+1], *s2k_cacheid = NULL;
+  char s2k_cacheidbuf[1+16+1]; // *s2k_cacheid = NULL;
 
   if (!canceled)
     canceled = &dummy_canceled;
@@ -277,7 +277,7 @@ passphrase_to_dek_ext (u32 *keyid, int pubkey_algo,
       if ( keyid )
         {
           u32 used_kid[2];
-          char *us;
+          //char *us;
 
           if ( keyid[2] && keyid[3] )
             {
@@ -292,7 +292,7 @@ passphrase_to_dek_ext (u32 *keyid, int pubkey_algo,
 
           //us = get_long_user_id_string ( keyid );
           //write_status_text ( STATUS_USERID_HINT, us );
-          xfree(us);
+          //xfree(us);
 
           snprintf (buf, sizeof buf -1, "%08lX%08lX %08lX%08lX %d 0",
                     (ulong)keyid[0], (ulong)keyid[1],
@@ -371,7 +371,7 @@ passphrase_to_dek_ext (u32 *keyid, int pubkey_algo,
 	  memset (s2k_cacheidbuf, 0, sizeof s2k_cacheidbuf);
 	  *s2k_cacheidbuf = 'S';
 	  bin2hex (s2k->salt, 8, s2k_cacheidbuf + 1);
-	  s2k_cacheid = s2k_cacheidbuf;
+	  // s2k_cacheid = s2k_cacheidbuf;
 	}
 
       /* Divert to the gpg-agent. */

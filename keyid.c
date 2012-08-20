@@ -416,7 +416,7 @@ keyid_from_fingerprint( const byte *fprint, size_t fprint_len, u32 *keyid )
     if( fprint_len != 20 ) {
 	/* This is special as we have to lookup the key first */
 	PKT_public_key pk;
-	int rc;
+	int rc = 0;
 
 	memset( &pk, 0, sizeof pk );
 //	rc = get_pubkey_byfprint( &pk, fprint, fprint_len ); // FIXME

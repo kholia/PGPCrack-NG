@@ -467,7 +467,7 @@ int
 ask_for_detached_datafile (gcry_md_hd_t md, gcry_md_hd_t md2,
 			   const char *inname, int textmode )
 {
-    progress_filter_context_t *pfx;
+    progress_filter_context_t *pfx = NULL;
     char *answer = NULL;
     IOBUF fp;
     int rc = 0;
@@ -539,7 +539,7 @@ int
 hash_datafiles( gcry_md_hd_t md, gcry_md_hd_t md2, strlist_t files,
 		const char *sigfilename, int textmode )
 {
-    progress_filter_context_t *pfx;
+    progress_filter_context_t *pfx = NULL;
     IOBUF fp;
     strlist_t sl;
 
