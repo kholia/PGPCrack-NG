@@ -1,9 +1,12 @@
 PGPCrack-NG
 ===========
 
-PGPCrack-NG is a program designed to brute-force symmetrically encrypted PGP files
+PGPCrack-NG is a program designed to brute-force symmetrically encrypted PGP files.
 
-1. Compile using ```make```
+0. On Fedora 19, do ```sudo yum install libassuan-devel -y```.
+
+1. Compile using ```make```. You might need to edit
+   ```-I/usr/include/libassuan2``` part in the Makefile.
 
 2. Run ```cat ~/magnum-jumbo/run/password.lst  | ./PGPCrack-NG <PGP file>```
 
