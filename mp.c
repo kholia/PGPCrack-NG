@@ -289,9 +289,9 @@ proc_plaintext( CTX c, PACKET *pkt )
         BUG ();
     }
     if ( DBG_HASHING ) {
-	gcry_md_start_debug ( c->mfx.md, "verify" );
+	gcry_md_debug ( c->mfx.md, "verify" );
 	if ( c->mfx.md2  )
-	    gcry_md_start_debug ( c->mfx.md2, "verify2" );
+	    gcry_md_debug ( c->mfx.md2, "verify2" );
     }
 
     rc=0;
