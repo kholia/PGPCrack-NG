@@ -367,8 +367,9 @@ proc_compressed( CTX c, PACKET *pkt )
 	rc = handle_compressed( c, zd, proc_encrypt_cb, c );
     else
 	rc = handle_compressed( c, zd, NULL, NULL );
-    if( rc )
-	log_error("uncompressing failed: %s\n", g10_errstr(rc));
+
+    /* if( rc )
+	log_error("uncompressing failed: %s\n", g10_errstr(rc)); */
     free_packet(pkt);
     c->last_was_session_key = 0;
 }

@@ -8,7 +8,7 @@ PGPCrack-NG is a program designed to brute-force symmetrically encrypted PGP fil
 1. Compile using ```make```. You might need to edit
    ```-I/usr/include/libassuan2``` part in the Makefile.
 
-2. Run ```cat ~/magnum-jumbo/run/password.lst  | ./PGPCrack-NG <PGP file>```
+2. Run ```cat password.lst  | ./PGPCrack-NG <PGP file>```
 
 3. ```john -i -stdout | ./PGPCrack-NG <PGP file>```
 
@@ -17,4 +17,4 @@ Speed: > 1330 passwords / second on AMD X3 720 CPU @ 2.8GHz (using single core).
 TODO
 ----
 
-* Rebase to GnuPG modern (2.1.1)
+* Rebase to GnuPG modern (2.1.3)

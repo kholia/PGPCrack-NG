@@ -383,7 +383,12 @@ parse( IOBUF inp, PACKET *pkt, int onlykeypkts, off_t *retpos,
     int with_uid = (onlykeypkts == 2);
 
     *skip = 0;
-    assert( !pkt->pkt.generic );
+    // assert( !pkt->pkt.generic );
+    if ( pkt->pkt.generic ) {
+	rc = gpg_error (GPG_ERR_INV_PACKET);
+	goto leave;
+    }
+
     if( retpos )
 	*retpos = iobuf_tell(inp);
 
@@ -488,8 +493,8 @@ parse( IOBUF inp, PACKET *pkt, int onlykeypkts, off_t *retpos,
 	    if(pkttype!=PKT_ENCRYPTED && pkttype!=PKT_PLAINTEXT
 	       && pkttype!=PKT_COMPRESSED)
 	      {
-		log_error ("%s: indeterminate length for invalid"
-			   " packet type %d\n", iobuf_where(inp), pkttype );
+		/* log_error ("%s: indeterminate length for invalid"
+			   " packet type %d\n", iobuf_where(inp), pkttype ); */
                 rc = gpg_error (GPG_ERR_INV_PACKET);
 		goto leave;
 	      }
@@ -748,7 +753,7 @@ parse_marker( IOBUF inp, int pkttype, unsigned long pktlen )
   return 0;
 
  fail:
-  log_error("invalid marker packet\n");
+  // log_error("invalid marker packet\n");
   iobuf_skip_rest(inp,pktlen,0);
   return G10ERR_INVALID_PACKET;
 }
@@ -761,13 +766,13 @@ parse_symkeyenc( IOBUF inp, int pkttype, unsigned long pktlen, PACKET *packet )
     int i, version, s2kmode, cipher_algo, hash_algo, seskeylen, minlen;
 
     if( pktlen < 4 ) {
-	log_error("packet(%d) too short\n", pkttype);
+	// log_error("packet(%d) too short\n", pkttype);
         rc = gpg_error (GPG_ERR_INV_PACKET);
 	goto leave;
     }
     version = iobuf_get_noeof(inp); pktlen--;
     if( version != 4 ) {
-	log_error("packet(%d) with unknown version %d\n", pkttype, version);
+	// log_error("packet(%d) with unknown version %d\n", pkttype, version);
         rc = gpg_error (GPG_ERR_INV_PACKET);
 	goto leave;
     }
@@ -866,7 +871,7 @@ parse_pubkeyenc( IOBUF inp, int pkttype, unsigned long pktlen, PACKET *packet )
     }
     k->version = iobuf_get_noeof(inp); pktlen--;
     if( k->version != 2 && k->version != 3 ) {
-	log_error("packet(%d) with unknown version %d\n", pkttype, k->version);
+	// log_error("packet(%d) with unknown version %d\n", pkttype, k->version);
         rc = gpg_error (GPG_ERR_INV_PACKET);
 	goto leave;
     }
@@ -1388,8 +1393,8 @@ parse_signature( IOBUF inp, int pkttype, unsigned long pktlen,
     if( sig->version == 4 )
 	is_v4=1;
     else if( sig->version != 2 && sig->version != 3 ) {
-	log_error("packet(%d) with unknown version %d\n",
-                  pkttype, sig->version);
+	/* log_error("packet(%d) with unknown version %d\n",
+                  pkttype, sig->version); */
         rc = gpg_error (GPG_ERR_INV_PACKET);
 	goto leave;
     }
@@ -1717,13 +1722,13 @@ parse_key (IOBUF inp, int pkttype, unsigned long pktlen,
     else if( version == 4 )
 	is_v4=1;
     else if( version != 2 && version != 3 ) {
-	log_error("packet(%d) with unknown version %d\n", pkttype, version);
+	// log_error("packet(%d) with unknown version %d\n", pkttype, version);
         rc = gpg_error (GPG_ERR_INV_PACKET);
 	goto leave;
     }
 
     if( pktlen < 11 ) {
-	log_error("packet(%d) too short\n", pkttype);
+	// log_error("packet(%d) too short\n", pkttype);
         rc = gpg_error (GPG_ERR_INV_PACKET);
 	goto leave;
     }
@@ -2415,8 +2420,8 @@ parse_encrypted( IOBUF inp, int pkttype, unsigned long pktlen,
         if (orig_pktlen)
             pktlen--;
 	if( version != 1 ) {
-	    log_error("encrypted_mdc packet with unknown version %d\n",
-								version);
+	    /* log_error("encrypted_mdc packet with unknown version %d\n",
+								version); */
             /*skip_rest(inp, pktlen); should we really do this? */
             rc = gpg_error (GPG_ERR_INV_PACKET);
 	    goto leave;
@@ -2424,7 +2429,7 @@ parse_encrypted( IOBUF inp, int pkttype, unsigned long pktlen,
 	ed->mdc_method = DIGEST_ALGO_SHA1;
     }
     if( orig_pktlen && pktlen < 10 ) { /* actually this is blocksize+2 */
-	log_error("packet(%d) too short\n", pkttype);
+	// log_error("packet(%d) too short\n", pkttype);
         rc = G10ERR_INVALID_PACKET;
 	iobuf_skip_rest(inp, pktlen, partial);
 	goto leave;
@@ -2464,7 +2469,7 @@ parse_mdc (IOBUF inp, int pkttype, unsigned long pktlen,
     fprintf (listfp, ":mdc packet: length=%lu\n", pktlen);
   if (!new_ctb || pktlen != 20)
     {
-      log_error("mdc_packet with invalid encoding\n");
+      // log_error("mdc_packet with invalid encoding\n");
       rc = gpg_error (GPG_ERR_INV_PACKET);
       goto leave;
     }
