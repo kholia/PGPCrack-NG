@@ -1,3 +1,10 @@
+Update
+======
+
+Please use https://github.com/magnumripper/JohnTheRipper/ instead!
+
+Yes, JtR supports cracking symmetrically encrypted PGP files now :)
+
 PGPCrack-NG
 ===========
 
