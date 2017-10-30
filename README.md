@@ -10,10 +10,12 @@ PGPCrack-NG
 
 PGPCrack-NG is a program designed to brute-force symmetrically encrypted PGP files.
 
-0. On Fedora 19, do ```sudo yum install libassuan-devel -y```. On Ubuntu, do ```sudo apt-get install libpth-dev libbz2-dev libassuan-dev libgcrypt20-dev libgpg-error-dev```.
+0. On Fedora 19, do ```sudo yum install libassuan-devel -y```. On Ubuntu, do ```sudo apt-get install libpth-dev libbz2-dev libassuan-dev libgcrypt20-dev libgpg-error-dev zlib1g-dev```.
 
 1. Compile using ```make```. You might need to edit
-   ```-I/usr/include/libassuan2``` part in the Makefile.
+   ```-I/usr/include/libassuan2``` part in the Makefile to refer to
+   the location of the `libassuan.a` and `libassuan.so` files (e.g. on
+   Debian/amd64 that's `/usr/lib/x86_64-linux-gnu/`).
 
 2. Run ```cat password.lst  | ./PGPCrack-NG <PGP file>```
 
